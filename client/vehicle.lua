@@ -31,6 +31,8 @@ function OpenVehicleSpawnerMenu(type, station, part, partNum)
 								props = vehicle.props,
 								type  = type
 							})
+						else
+							table.insert(shopElements, {label = (" No Data")})
 						end
 					end
 
@@ -161,7 +163,7 @@ function StoreNearbyVehicle(playerCoords)
 				attempts = attempts + 1
 
 				-- Give up
-				if attempts > 30 then
+				if attempts > 15 then
 					break
 				end
 
@@ -287,7 +289,7 @@ end
 
 Citizen.CreateThread(function()
 	while true do
-		Citizen.Wait(0)
+		Citizen.Wait(5)
 
 		if isInShopMenu then
 			DisableControlAction(0, 75, true)  -- Disable exit vehicle
