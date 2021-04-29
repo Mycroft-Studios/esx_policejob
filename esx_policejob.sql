@@ -1,19 +1,20 @@
 USE `es_extended`;
 
 INSERT INTO `addon_account` (name, label, shared) VALUES
-	('society_police', 'Police', 1)
+	('society_LSPD', 'LSPD', 1)
 ;
 
 INSERT INTO `datastore` (name, label, shared) VALUES
-	('society_police', 'Police', 1)
+	('society_LSPD', 'LSPD', 1)
 ;
 
 INSERT INTO `addon_inventory` (name, label, shared) VALUES
-	('society_police', 'Police', 1)
+	('society_LSPD', 'LSPD', 1)
 ;
 
 INSERT INTO `jobs` (name, label) VALUES
-	('police', 'LSPD')
+	('police', 'LSPD'),
+	('police', 'BCSO')
 ;
 
 INSERT INTO `job_grades` (job_name, grade, name, label, salary, skin_male, skin_female) VALUES
@@ -21,7 +22,7 @@ INSERT INTO `job_grades` (job_name, grade, name, label, salary, skin_male, skin_
 	('police',1,'officer','Officier',40,'{}','{}'),
 	('police',2,'sergeant','Sergent',60,'{}','{}'),
 	('police',3,'lieutenant','Lieutenant',85,'{}','{}'),
-	('police',4,'boss','Commandant',100,'{}','{}')
+	('police',4,'lspdboss','Commandant',100,'{}','{}')
 ;
 
 CREATE TABLE `fine_types` (
@@ -32,6 +33,10 @@ CREATE TABLE `fine_types` (
 
 	PRIMARY KEY (`id`)
 );
+
+
+ALTER TABLE `users` ADD COLUMN `Department` LONGTEXT NULL DEFAULT NULL;
+
 
 INSERT INTO `fine_types` (label, amount, category) VALUES
 	('Usage abusif du klaxon',30,0),

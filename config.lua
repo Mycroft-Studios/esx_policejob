@@ -5,7 +5,7 @@ Config.MarkerType                 = {Cloakrooms = 20, Armories = 21, BossActions
 Config.MarkerSize                 = {x = 1.5, y = 1.5, z = 0.5}
 Config.MarkerColor                = {r = 50, g = 50, b = 204}
 
-Config.EnablePlayerManagement     = false -- Enable if you want society managing.
+Config.EnablePlayerManagement     = true -- Enable if you want society managing.
 Config.EnableArmoryManagement     = false
 Config.EnableESXIdentity          = false -- Enable if you're using esx_identity.
 Config.EnableLicenses             = false -- Enable if you're using esx_license.
@@ -74,9 +74,8 @@ Config.PoliceStations = {
 		},
 
 		BossActions = {
-			vector3(448.4, -973.2, 30.6)
-		}
-
+			vector3(448.4, -973.2, 30.6),
+			BossGrade = "lspdboss"
 	}
 
 }

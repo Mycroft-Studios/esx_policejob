@@ -4,12 +4,25 @@ TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
 if Config.EnableESXService then
 	if Config.MaxInService ~= -1 then
-		TriggerEvent('esx_service:activateService', 'police', Config.MaxInService)
+		for k,v in pairs(Config.PoliceStations)
+		TriggerEvent('esx_service:activateService', tostring(k), Config.MaxInService)
+	  end
 	end
 end
 
-TriggerEvent('esx_phone:registerNumber', 'police', _U('alert_police'), true, true)
-TriggerEvent('esx_society:registerSociety', 'police', 'Police', 'society_police', 'society_police', 'society_police', {type = 'public'})
+RegisterCommand("setdepartment", function(source, args, rawCommand)
+	local xPlayer = ESX.GetPlayerFromId(args[1])
+	MySQL.Async.execute('UPDATE users SET `Department` ='.. args[2] ..' WHERE owner = @owner', {
+		['@owner'] = xPlayer.identifier
+	}, function (rowsChanged)
+		if rowsChanged then
+		end
+end, true )
+
+for k,v in pairs(Config.PoliceStations)
+TriggerEvent('esx_phone:registerNumber', tostring(k), _U('alert_police'), true, true)
+TriggerEvent('esx_society:registerSociety', tostring(k), 'Police', 'society_'..tostring(k), 'society_'..tostring(k), 'society_'..tostring(k), {type = 'public'})
+end
 
 RegisterNetEvent('esx_policejob:confiscatePlayerItem')
 AddEventHandler('esx_policejob:confiscatePlayerItem', function(target, itemType, itemName, amount)
@@ -117,11 +130,11 @@ AddEventHandler('esx_policejob:OutVehicle', function(target)
 end)
 
 RegisterNetEvent('esx_policejob:getStockItem')
-AddEventHandler('esx_policejob:getStockItem', function(itemName, count)
+AddEventHandler('esx_policejob:getStockItem', function(itemName, count, station)
 	local _source = source
 	local xPlayer = ESX.GetPlayerFromId(_source)
 
-	TriggerEvent('esx_addoninventory:getSharedInventory', 'society_police', function(inventory)
+	TriggerEvent('esx_addoninventory:getSharedInventory', 'society_'.. station, function(inventory)
 		local inventoryItem = inventory.getItem(itemName)
 
 		-- is there enough in the society?
@@ -142,11 +155,11 @@ AddEventHandler('esx_policejob:getStockItem', function(itemName, count)
 end)
 
 RegisterNetEvent('esx_policejob:putStockItems')
-AddEventHandler('esx_policejob:putStockItems', function(itemName, count)
+AddEventHandler('esx_policejob:putStockItems', function(itemName, count, station)
 	local xPlayer = ESX.GetPlayerFromId(source)
 	local sourceItem = xPlayer.getInventoryItem(itemName)
 
-	TriggerEvent('esx_addoninventory:getSharedInventory', 'society_police', function(inventory)
+	TriggerEvent('esx_addoninventory:getSharedInventory', 'society_'.. station, function(inventory)
 		local inventoryItem = inventory.getItem(itemName)
 
 		-- does the player have enough of the item?
@@ -209,6 +222,19 @@ ESX.RegisterServerCallback('esx_policejob:getFineList', function(source, cb, cat
 	end)
 end)
 
+
+ESX.RegisterServerCallback('esx_policejob:getPlayerDepartment', function(source, cb, category)
+	local xPlayer = ESX.GetPlayerFromId(source)
+	MySQL.Async.fetchAll('SELECT Department FROM users WHERE identifier = @identifier', {
+		['@identifier'] = xPlayer.identifier
+	}, function(Department)
+		if Department then
+		cb(Department)
+		else
+		cb(nil)
+	end)
+end)
+
 ESX.RegisterServerCallback('esx_policejob:getVehicleInfos', function(source, cb, plate)
 	MySQL.Async.fetchAll('SELECT owner FROM owned_vehicles WHERE plate = @plate', {
 		['@plate'] = plate
@@ -242,8 +268,8 @@ ESX.RegisterServerCallback('esx_policejob:getVehicleInfos', function(source, cb,
 	end)
 end)
 
-ESX.RegisterServerCallback('esx_policejob:getArmoryWeapons', function(source, cb)
-	TriggerEvent('esx_datastore:getSharedDataStore', 'society_police', function(store)
+ESX.RegisterServerCallback('esx_policejob:getArmoryWeapons', function(source, cb, station)
+	TriggerEvent('esx_datastore:getSharedDataStore', 'society_'.. station, function(store)
 		local weapons = store.get('weapons')
 
 		if weapons == nil then
@@ -254,14 +280,14 @@ ESX.RegisterServerCallback('esx_policejob:getArmoryWeapons', function(source, cb
 	end)
 end)
 
-ESX.RegisterServerCallback('esx_policejob:addArmoryWeapon', function(source, cb, weaponName, removeWeapon)
+ESX.RegisterServerCallback('esx_policejob:addArmoryWeapon', function(source, cb, weaponName, removeWeapon, station)
 	local xPlayer = ESX.GetPlayerFromId(source)
 
 	if removeWeapon then
 		xPlayer.removeWeapon(weaponName)
 	end
 
-	TriggerEvent('esx_datastore:getSharedDataStore', 'society_police', function(store)
+	TriggerEvent('esx_datastore:getSharedDataStore', 'society_'.. station, function(store)
 		local weapons = store.get('weapons') or {}
 		local foundWeapon = false
 
@@ -285,11 +311,11 @@ ESX.RegisterServerCallback('esx_policejob:addArmoryWeapon', function(source, cb,
 	end)
 end)
 
-ESX.RegisterServerCallback('esx_policejob:removeArmoryWeapon', function(source, cb, weaponName)
+ESX.RegisterServerCallback('esx_policejob:removeArmoryWeapon', function(source, cb, weaponName, station)
 	local xPlayer = ESX.GetPlayerFromId(source)
 	xPlayer.addWeapon(weaponName, 500)
 
-	TriggerEvent('esx_datastore:getSharedDataStore', 'society_police', function(store)
+	TriggerEvent('esx_datastore:getSharedDataStore', 'society_'.. station, function(store)
 		local weapons = store.get('weapons') or {}
 
 		local foundWeapon = false
@@ -438,8 +464,8 @@ function getPriceFromHash(vehicleHash, jobGrade, type)
 	return 0
 end
 
-ESX.RegisterServerCallback('esx_policejob:getStockItems', function(source, cb)
-	TriggerEvent('esx_addoninventory:getSharedInventory', 'society_police', function(inventory)
+ESX.RegisterServerCallback('esx_policejob:getStockItems', function(source, cb, station)
+	TriggerEvent('esx_addoninventory:getSharedInventory', 'society_'.. station, function(inventory)
 		cb(inventory.items)
 	end)
 end)

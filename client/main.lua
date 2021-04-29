@@ -3,6 +3,8 @@ local HasAlreadyEnteredMarker, isDead, isHandcuffed, hasAlreadyJoined, playerInS
 local LastStation, LastPart, LastPartNum, LastEntity, CurrentAction, CurrentActionMsg
 ESX = nil
 
+local PlayerDepartment = nil
+
 Citizen.CreateThread(function()
 	while ESX == nil do
 		TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
@@ -14,6 +16,13 @@ Citizen.CreateThread(function()
 	end
 
 	ESX.PlayerData = ESX.GetPlayerData()
+	
+	Wait(2000)
+	ESX.TriggerServerCallback('esx_policejob:getPlayerDepartment', function(Department)
+		if Department then
+			PlayerDepartment = Department
+		end
+		end)
 end)
 
 function cleanPlayer(playerPed)
@@ -23,6 +32,19 @@ function cleanPlayer(playerPed)
 	ClearPedLastWeaponDamage(playerPed)
 	ResetPedMovementClipset(playerPed, 0)
 end
+
+function RefreshDepartment()
+	ESX.TriggerServerCallback('esx_policejob:getPlayerDepartment', function(Department)
+		if Department then
+			PlayerDepartment = Department
+		end
+		end)
+end
+
+RegisterNetEvent('esx_policejob:refreshDepartment')
+AddEventHandler('esx_policejob:refreshDepartment-', function()
+	RefreshDepartment()
+end)
 
 function setUniform(uniform, playerPed)
 	TriggerEvent('skinchanger:getSkin', function(skin)
@@ -684,11 +706,11 @@ function OpenGetWeaponMenu()
 
 			ESX.TriggerServerCallback('esx_policejob:removeArmoryWeapon', function()
 				OpenGetWeaponMenu()
-			end, data.current.value)
+			end, data.current.value, currentStation)
 		end, function(data, menu)
 			menu.close()
 		end)
-	end)
+	end, currentStation)
 end
 
 function OpenPutWeaponMenu()
@@ -716,7 +738,7 @@ function OpenPutWeaponMenu()
 
 		ESX.TriggerServerCallback('esx_policejob:addArmoryWeapon', function()
 			OpenPutWeaponMenu()
-		end, data.current.value, true)
+		end, data.current.value, true, currentStation)
 	end, function(data, menu)
 		menu.close()
 	end)
@@ -866,7 +888,7 @@ function OpenGetStocksMenu()
 				else
 					menu2.close()
 					menu.close()
-					TriggerServerEvent('esx_policejob:getStockItem', itemName, count)
+					TriggerServerEvent('esx_policejob:getStockItem', itemName, count, currentStation)
 
 					Citizen.Wait(300)
 					OpenGetStocksMenu()
@@ -1297,8 +1319,9 @@ Citizen.CreateThread(function()
 					end
 				end
 
-				if Config.EnablePlayerManagement and ESX.PlayerData.job.grade_name == 'boss' then
+				if Config.EnablePlayerManagement then 
 					for i=1, #v.BossActions, 1 do
+					if ESX.PlayerData.job.grade_name == v.BossActions[i].BossGrade then
 						local distance = #(playerCoords - v.BossActions[i])
 
 						if distance < Config.DrawDistance then
@@ -1431,7 +1454,7 @@ Citizen.CreateThread(function()
 					ESX.Game.DeleteVehicle(CurrentActionData.vehicle)
 				elseif CurrentAction == 'menu_boss_actions' then
 					ESX.UI.Menu.CloseAll()
-					TriggerEvent('esx_society:openBossMenu', 'police', function(data, menu)
+					TriggerEvent('esx_society:openBossMenu', CurrentActionData.station, function(data, menu)
 						menu.close()
 
 						CurrentAction     = 'menu_boss_actions'
