@@ -1271,11 +1271,13 @@ Citizen.CreateThread(function()
 					local distance = #(playerCoords - v.Cloakrooms[i])
 
 					if distance < Config.DrawDistance then
-						DrawMarker(Config.MarkerType.Cloakrooms, v.Cloakrooms[i], 0.0, 0.0, 0.0, 0, 0.0, 0.0, 1.0, 1.0, 1.0, Config.MarkerColor.r, Config.MarkerColor.g, Config.MarkerColor.b, 100, false, true, 2, true, false, false, false)
-						letSleep = false
+						if PlayerDepartment == k then
+							DrawMarker(Config.MarkerType.Cloakrooms, v.Cloakrooms[i], 0.0, 0.0, 0.0, 0, 0.0, 0.0, 1.0, 1.0, 1.0, Config.MarkerColor.r, Config.MarkerColor.g, Config.MarkerColor.b, 100, false, true, 2, true, false, false, false)
+							letSleep = false
 
-						if distance < Config.MarkerSize.x then
-							isInMarker, currentStation, currentPart, currentPartNum = true, k, 'Cloakroom', i
+							if distance < Config.MarkerSize.x then
+								isInMarker, currentStation, currentPart, currentPartNum = true, k, 'Cloakroom', i
+							end
 						end
 					end
 				end
@@ -1284,6 +1286,7 @@ Citizen.CreateThread(function()
 					local distance = #(playerCoords - v.Armories[i])
 
 					if distance < Config.DrawDistance then
+						if PlayerDepartment == k then
 						DrawMarker(Config.MarkerType.Armories, v.Armories[i], 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5, 0.5, Config.MarkerColor.r, Config.MarkerColor.g, Config.MarkerColor.b, 100, false, true, 2, true, false, false, false)
 						letSleep = false
 
@@ -1291,12 +1294,14 @@ Citizen.CreateThread(function()
 							isInMarker, currentStation, currentPart, currentPartNum = true, k, 'Armory', i
 						end
 					end
+					end
 				end
 
 				for i=1, #v.Vehicles, 1 do
 					local distance = #(playerCoords - v.Vehicles[i].Spawner)
 
 					if distance < Config.DrawDistance then
+						if PlayerDepartment == k then
 						DrawMarker(Config.MarkerType.Vehicles, v.Vehicles[i].Spawner, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, Config.MarkerColor.r, Config.MarkerColor.g, Config.MarkerColor.b, 100, false, true, 2, true, false, false, false)
 						letSleep = false
 
@@ -1304,17 +1309,20 @@ Citizen.CreateThread(function()
 							isInMarker, currentStation, currentPart, currentPartNum = true, k, 'Vehicles', i
 						end
 					end
+					end
 				end
 
 				for i=1, #v.Helicopters, 1 do
+					if PlayerDepartment == k then
 					local distance =  #(playerCoords - v.Helicopters[i].Spawner)
 
 					if distance < Config.DrawDistance then
 						DrawMarker(Config.MarkerType.Helicopters, v.Helicopters[i].Spawner, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, Config.MarkerColor.r, Config.MarkerColor.g, Config.MarkerColor.b, 100, false, true, 2, true, false, false, false)
 						letSleep = false
 
-						if distance < Config.MarkerSize.x then
-							isInMarker, currentStation, currentPart, currentPartNum = true, k, 'Helicopters', i
+							if distance < Config.MarkerSize.x then
+								isInMarker, currentStation, currentPart, currentPartNum = true, k, 'Helicopters', i
+							end
 						end
 					end
 				end
@@ -1325,12 +1333,14 @@ Citizen.CreateThread(function()
 						local distance = #(playerCoords - v.BossActions[i])
 
 						if distance < Config.DrawDistance then
+							if PlayerDepartment == k then
 							DrawMarker(Config.MarkerType.BossActions, v.BossActions[i], 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, Config.MarkerColor.r, Config.MarkerColor.g, Config.MarkerColor.b, 100, false, true, 2, true, false, false, false)
 							letSleep = false
 
 							if distance < Config.MarkerSize.x then
 								isInMarker, currentStation, currentPart, currentPartNum = true, k, 'BossActions', i
 							end
+						end
 						end
 					end
 				end
