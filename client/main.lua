@@ -561,7 +561,7 @@ function OpenFineCategoryMenu(player, category)
 			menu.close()
 
 			if Config.EnablePlayerManagement then
-				TriggerServerEvent('esx_billing:sendBill', GetPlayerServerId(player), 'society_police', _U('fine_total', data.current.fineLabel), data.current.amount)
+				TriggerServerEvent('esx_billing:sendBill', GetPlayerServerId(player), 'society_'..PlayerDepartment, _U('fine_total', data.current.fineLabel), data.current.amount)
 			else
 				TriggerServerEvent('esx_billing:sendBill', GetPlayerServerId(player), '', _U('fine_total', data.current.fineLabel), data.current.amount)
 			end

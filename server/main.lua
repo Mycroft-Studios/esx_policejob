@@ -11,11 +11,13 @@ if Config.EnableESXService then
 end
 
 RegisterCommand("setdepartment", function(source, args, rawCommand)
+	if not args[1] then args[1] = source end
 	local xPlayer = ESX.GetPlayerFromId(args[1])
 	MySQL.Async.execute('UPDATE users SET `Department` ='.. args[2] ..' WHERE owner = @owner', {
 		['@owner'] = xPlayer.identifier
 	}, function (rowsChanged)
 		if rowsChanged then
+			TriggerClientEvent("esx_policejob:refreshDepartment", args[1])
 		end
 end, true )
 
