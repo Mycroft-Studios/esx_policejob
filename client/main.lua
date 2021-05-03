@@ -1329,7 +1329,7 @@ Citizen.CreateThread(function()
 
 				if Config.EnablePlayerManagement then 
 					for i=1, #v.BossActions, 1 do
-					if ESX.PlayerData.job.grade_name == v.BossActions[i].BossGrade then
+					if ESX.PlayerData.job.grade_name == v.BossGrade then
 						local distance = #(playerCoords - v.BossActions[i])
 
 						if distance < Config.DrawDistance then
